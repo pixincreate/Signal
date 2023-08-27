@@ -200,6 +200,13 @@ public final class FeatureFlags {
   @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
   @VisibleForTesting
   static final Map<String, Object> FORCED_VALUES = new HashMap<String, Object>() {{
+    put(AD_HOC_CALLING, Boolean.TRUE);
+    put(USE_AEC3, Boolean.TRUE);
+    put(INTERNAL_USER, Boolean.TRUE);
+    put(PHONE_NUMBER_PRIVACY, Boolean.TRUE);
+    put(STORIES_TEXT_FUNCTIONS, Boolean.TRUE);
+    put(SHARE_SELECTION_LIMIT, Boolean.TRUE);
+    put(USERNAMES, Boolean.TRUE);
   }};
 
   /**
