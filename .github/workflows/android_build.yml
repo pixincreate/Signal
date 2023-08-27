@@ -1,0 +1,116 @@
+name: Android CI
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: write
+
+env:
+  GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=2g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Forked Repo
+        uses: actions/checkout@v4
+        with:
+          repository: pixincreate/Signal
+          ref: main
+          fetch-depth: 0
+          submodules: true
+
+      - name: Setup Keystore File
+        env:
+          KEYSTORE: ${{ secrets.KEYSTORE_FILE }}
+          GPG_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD_GPG }}
+        run: |
+          echo "$KEYSTORE" > keystore.jks.asc
+          gpg -d --passphrase "$GPG_PASSWORD" --batch keystore.jks.asc > keystore.jks
+
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+          cache: "gradle"
+    
+      # Taken from tw-hx's Action build
+      - name: Enlarge swapfile
+        run: |
+          export SWAP_FILE=$(swapon --show=NAME | tail -n 1)
+          sudo swapoff $SWAP_FILE
+          sudo rm $SWAP_FILE
+          sudo fallocate -l 8192M $SWAP_FILE
+          sudo chmod 600 $SWAP_FILE
+          sudo mkswap $SWAP_FILE
+          sudo swapon $SWAP_FILE
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Build with Gradle
+        run: ./gradlew assemblePlayFossProdRelease
+
+      - name: Find the APK file
+        run: |
+          apk_dir=app
+          apk_files=$(find $apk_dir -name "*.apk")
+          if [ -z "$apk_files" ]; then
+            echo "No APK files found in $apk_dir"
+          else
+            echo "APK files found in $apk_dir:"
+            echo "$apk_files"
+          fi
+
+          apk_file=$(basename $(find "app" -name "*-arm64-v8a-release-unsigned-*.apk"))
+          apk_name="${apk_file//unsigned/signed}"
+          echo "APP_NAME=$apk_name" >> $GITHUB_ENV
+
+      - name: Sign the APK
+        env:
+          ALIAS_NAME: ${{ secrets.KEYSTORE_ALIAS_NAME }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          ALIAS_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD_ALIAS }}
+          APP_PATH: "app/build/outputs/apk/playFossProd"
+        run: |
+          path=${ANDROID_HOME}/build-tools/$(ls ${ANDROID_HOME}/build-tools/ | tail -1)
+
+          $path/zipalign -v -p 4 ${{ env.APP_PATH }}/release/*-arm64-v8a-release-unsigned-*.apk ${{ env.APP_PATH }}/release/aligned.apk
+          echo -e -n "\nAlignment Succeeded!\n"
+          $path/apksigner sign --ks keystore.jks --ks-key-alias $ALIAS_NAME --ks-pass pass:$KEYSTORE_PASSWORD --key-pass pass:$ALIAS_PASSWORD --out ${{ env.APP_PATH }}/release/${{ env.APP_NAME }} ${{ env.APP_PATH }}/release/aligned.apk
+          echo -e -n "\nAPK Signing completed successfully!\n"
+          $path/apksigner verify ${{ env.APP_PATH }}/release/${{ env.APP_NAME }}
+
+          rm keystore.jks
+
+      - name: Get app version
+        run: |
+          version=$(echo "${{ env.APP_NAME }}" | sed 's/.*-\([0-9]\+\.[0-9]\+\.[0-9]\+\)\.apk/\1/')
+          echo "app_version=v-${version}" >> $GITHUB_ENV
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Signal-Android-${{ env.app_version }}
+          path: app/build/outputs/apk/playFossProd/release/${{ env.APP_NAME }}
+          retention-days: 2
+
+      - name: Release APK
+        uses: "dciborow/action-github-releases@v1.0.1"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: ${{ env.app_version }}
+          prerelease: false
+          title: Signal-Android-${{ env.app_version }}
+          files: |
+            app/build/outputs/apk/playFossProd/release/${{ env.APP_NAME }}
