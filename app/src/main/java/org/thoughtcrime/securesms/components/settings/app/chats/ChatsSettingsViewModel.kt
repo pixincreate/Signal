@@ -9,6 +9,7 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencies
 import org.thoughtcrime.securesms.keyvalue.SignalStore
 import org.thoughtcrime.securesms.util.BackupUtil
 import org.thoughtcrime.securesms.util.ConversationUtil
+import org.thoughtcrime.securesms.util.TextSecurePreferences // JW: added
 import org.thoughtcrime.securesms.util.ThrottledDebouncer
 import org.thoughtcrime.securesms.util.Util
 import org.thoughtcrime.securesms.util.livedata.Store
@@ -30,6 +31,12 @@ class ChatsSettingsViewModel @JvmOverloads constructor(
       enterKeySends = SignalStore.settings().isEnterKeySends,
       chatBackupsEnabled = SignalStore.settings().isBackupEnabled && BackupUtil.canUserAccessBackupDirectory(ApplicationDependencies.getApplication()),
       useAsDefaultSmsApp = Util.isDefaultSmsProvider(ApplicationDependencies.getApplication())
+      // JW: added
+      ,
+      keepViewOnceMessages = TextSecurePreferences.isKeepViewOnceMessages(ApplicationDependencies.getApplication()),
+      ignoreRemoteDelete = TextSecurePreferences.isIgnoreRemoteDelete(ApplicationDependencies.getApplication()),
+      deleteMediaOnly = TextSecurePreferences.isDeleteMediaOnly(ApplicationDependencies.getApplication()),
+      whoCanAddYouToGroups = TextSecurePreferences.whoCanAddYouToGroups(ApplicationDependencies.getApplication())
     )
   )
 
@@ -80,4 +87,44 @@ class ChatsSettingsViewModel @JvmOverloads constructor(
       store.update { it.copy(chatBackupsEnabled = backupsEnabled) }
     }
   }
+
+  // JW: added
+  fun keepViewOnceMessages(enabled: Boolean) {
+    TextSecurePreferences.setKeepViewOnceMessages(ApplicationDependencies.getApplication(), enabled)
+    refresh()
+  }
+
+  // JW: added
+  fun ignoreRemoteDelete(enabled: Boolean) {
+    TextSecurePreferences.setIgnoreRemoteDelete(ApplicationDependencies.getApplication(), enabled)
+    refresh()
+  }
+
+  // JW: added
+  fun deleteMediaOnly(enabled: Boolean) {
+    TextSecurePreferences.setDeleteMediaOnly(ApplicationDependencies.getApplication(), enabled)
+    refresh()
+  }
+
+
+  // JW: added
+  fun setWhoCanAddYouToGroups(adder: String) {
+    TextSecurePreferences.setWhoCanAddYouToGroups(ApplicationDependencies.getApplication(), adder)
+    refresh()
+  }
+
+  // JW: added
+  private fun getState() = ChatsSettingsState(
+    generateLinkPreviews = SignalStore.settings().isLinkPreviewsEnabled,
+    useAddressBook = SignalStore.settings().isPreferSystemContactPhotos,
+    keepMutedChatsArchived = SignalStore.settings().shouldKeepMutedChatsArchived(),
+    useSystemEmoji = SignalStore.settings().isPreferSystemEmoji,
+    enterKeySends = SignalStore.settings().isEnterKeySends,
+    chatBackupsEnabled = SignalStore.settings().isBackupEnabled,
+    useAsDefaultSmsApp = Util.isDefaultSmsProvider(ApplicationDependencies.getApplication()),
+    keepViewOnceMessages = TextSecurePreferences.isKeepViewOnceMessages(ApplicationDependencies.getApplication()),
+    ignoreRemoteDelete = TextSecurePreferences.isIgnoreRemoteDelete(ApplicationDependencies.getApplication()),
+    deleteMediaOnly = TextSecurePreferences.isDeleteMediaOnly(ApplicationDependencies.getApplication()),
+    whoCanAddYouToGroups = TextSecurePreferences.whoCanAddYouToGroups(ApplicationDependencies.getApplication())
+  )
 }
