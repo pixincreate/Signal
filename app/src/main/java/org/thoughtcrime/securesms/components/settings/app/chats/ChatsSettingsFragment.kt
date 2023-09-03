@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.components.settings.app.chats
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build // JW: added
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
@@ -12,6 +13,7 @@ import org.thoughtcrime.securesms.components.settings.DSLSettingsFragment
 import org.thoughtcrime.securesms.components.settings.DSLSettingsText
 import org.thoughtcrime.securesms.components.settings.app.chats.sms.SmsExportState
 import org.thoughtcrime.securesms.components.settings.configure
+import org.thoughtcrime.securesms.util.TextSecurePreferences // JW: added
 import org.thoughtcrime.securesms.exporter.flow.SmsExportActivity
 import org.thoughtcrime.securesms.exporter.flow.SmsExportDialogs
 import org.thoughtcrime.securesms.util.adapter.mapping.MappingAdapter
@@ -21,6 +23,8 @@ class ChatsSettingsFragment : DSLSettingsFragment(R.string.preferences_chats__ch
 
   private lateinit var viewModel: ChatsSettingsViewModel
   private lateinit var smsExportLauncher: ActivityResultLauncher<Intent>
+  private val groupAddLabels by lazy { resources.getStringArray(R.array.pref_group_add_entries) } // JW: added
+  private val groupAddValues by lazy { resources.getStringArray(R.array.pref_group_add_values) }  // JW: added
 
   override fun onResume() {
     super.onResume()
@@ -149,6 +153,54 @@ class ChatsSettingsFragment : DSLSettingsFragment(R.string.preferences_chats__ch
         summary = DSLSettingsText.from(if (state.chatBackupsEnabled) R.string.arrays__enabled else R.string.arrays__disabled),
         onClick = {
           Navigation.findNavController(requireView()).safeNavigate(R.id.action_chatsSettingsFragment_to_backupsPreferenceFragment)
+        }
+      )
+
+      dividerPref()
+
+      sectionHeaderPref(R.string.preferences_chats__control_message_deletion)
+
+      // JW: added
+      switchPref(
+        title = DSLSettingsText.from(R.string.preferences_chats__chat_keep_view_once_messages),
+        summary = DSLSettingsText.from(R.string.preferences_chats__keep_view_once_messages_summary),
+        isChecked = state.keepViewOnceMessages,
+        onClick = {
+          viewModel.keepViewOnceMessages(!state.keepViewOnceMessages)
+        }
+      )
+
+      // JW: added
+      switchPref(
+        title = DSLSettingsText.from(R.string.preferences_chats__chat_ignore_remote_delete),
+        summary = DSLSettingsText.from(R.string.preferences_chats__chat_ignore_remote_delete_summary),
+        isChecked = state.ignoreRemoteDelete,
+        onClick = {
+          viewModel.ignoreRemoteDelete(!state.ignoreRemoteDelete)
+        }
+      )
+
+      // JW: added
+      switchPref(
+        title = DSLSettingsText.from(R.string.preferences_chats__delete_media_only),
+        summary = DSLSettingsText.from(R.string.preferences_chats__delete_media_only_summary),
+        isChecked = state.deleteMediaOnly,
+        onClick = {
+          viewModel.deleteMediaOnly(!state.deleteMediaOnly)
+        }
+      )
+
+      dividerPref()
+
+      sectionHeaderPref(R.string.preferences_chats__group_control)
+
+      // JW: added
+      radioListPref(
+        title = DSLSettingsText.from(R.string.preferences_chats__who_can_add_you_to_groups),
+        listItems = groupAddLabels,
+        selected = groupAddValues.indexOf(state.whoCanAddYouToGroups),
+        onSelected = {
+          viewModel.setWhoCanAddYouToGroups(groupAddValues[it])
         }
       )
     }
