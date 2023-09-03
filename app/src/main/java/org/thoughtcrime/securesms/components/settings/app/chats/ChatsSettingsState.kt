@@ -11,4 +11,10 @@ data class ChatsSettingsState(
   val chatBackupsEnabled: Boolean,
   val useAsDefaultSmsApp: Boolean,
   val smsExportState: SmsExportState = SmsExportState.FETCHING
+  // JW: added extra preferences
+  ,
+  val keepViewOnceMessages: Boolean,
+  val ignoreRemoteDelete: Boolean,
+  val deleteMediaOnly: Boolean,
+  val whoCanAddYouToGroups: String
 )
