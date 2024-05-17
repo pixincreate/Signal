@@ -192,6 +192,20 @@ public class TextSecurePreferences {
 
   private static final String ARGON2_TESTED = "argon2_tested";
 
+  //---------------------------------------------------------------------------
+  // JW: added strings are in this block.
+  // true = passphrase, false = Android lock or fingerprint
+  public static final String PROTECTION_METHOD_PREF = "pref_signal_protection_method";
+  // used to see if we delete view once messages after view or not
+  public static final String KEEP_VIEW_ONCE_MESSAGES = "pref_keep_view_once_messages";
+  // used to see if we ignore remote delete messages or not
+  public static final String IGNORE_REMOTE_DELETE = "pref_ignore_remote_delete";
+  // delete only media, not the rest of the message, from the All media screen
+  public static final String DELETE_MEDIA_ONLY = "pref_delete_media_only";
+  // who can add you to groups
+  public static final String WHO_CAN_ADD_YOU_TO_GROUPS = "pref_who_can_add_you_to_groups";
+  //---------------------------------------------------------------------------
+
   private static final String[] booleanPreferencesToBackup = {SCREEN_SECURITY_PREF,
                                                               INCOGNITO_KEYBORAD_PREF,
                                                               ALWAYS_RELAY_CALLS_PREF,
@@ -207,7 +221,11 @@ public class TextSecurePreferences {
                                                               NEW_CONTACTS_NOTIFICATIONS,
                                                               SHOW_INVITE_REMINDER_PREF,
                                                               SYSTEM_EMOJI_PREF,
-                                                              ENTER_SENDS_PREF};
+                                                              ENTER_SENDS_PREF,
+                                                              // JW: added boolean options
+                                                              KEEP_VIEW_ONCE_MESSAGES,
+                                                              IGNORE_REMOTE_DELETE,
+                                                              DELETE_MEDIA_ONLY};
 
   private static final String[] stringPreferencesToBackup = {LED_COLOR_PREF,
                                                              LED_BLINK_PREF,
@@ -215,7 +233,9 @@ public class TextSecurePreferences {
                                                              NOTIFICATION_PRIVACY_PREF,
                                                              THEME_PREF,
                                                              LANGUAGE_PREF,
-                                                             MESSAGE_BODY_TEXT_SIZE_PREF};
+                                                             MESSAGE_BODY_TEXT_SIZE_PREF,
+                                                             // JW: added String options
+                                                             WHO_CAN_ADD_YOU_TO_GROUPS};
 
   private static final String[] stringSetPreferencesToBackup = {MEDIA_DOWNLOAD_MOBILE_PREF,
                                                                 MEDIA_DOWNLOAD_WIFI_PREF,
@@ -1159,4 +1179,49 @@ public class TextSecurePreferences {
   public enum MediaKeyboardMode {
     EMOJI, STICKER, GIF
   }
+  
+  //---------------------------------------------------------------------------
+  // JW: added methods are in this block.
+  // added for PROTECTION_METHOD_PREF
+  public static boolean isProtectionMethodPassphrase(@NonNull Context context) {
+    return getBooleanPreference(context, PROTECTION_METHOD_PREF, false);
+  }
+
+  public static void setProtectionMethod(Context context, boolean value) {
+    setBooleanPreference(context, PROTECTION_METHOD_PREF, value);
+  }
+
+  public static boolean isKeepViewOnceMessages(Context context) {
+    return getBooleanPreference(context, KEEP_VIEW_ONCE_MESSAGES, false);
+  }
+
+  public static void setKeepViewOnceMessages(Context context, boolean value) {
+    setBooleanPreference(context, KEEP_VIEW_ONCE_MESSAGES, value);
+  }
+
+  public static boolean isIgnoreRemoteDelete(Context context) {
+    return getBooleanPreference(context, IGNORE_REMOTE_DELETE, false);
+  }
+
+  public static void setIgnoreRemoteDelete(Context context, boolean value) {
+    setBooleanPreference(context, IGNORE_REMOTE_DELETE, value);
+  }
+
+  public static boolean isDeleteMediaOnly(Context context) {
+    return getBooleanPreference(context, DELETE_MEDIA_ONLY, false);
+  }
+
+  public static void setDeleteMediaOnly(Context context, boolean value) {
+    setBooleanPreference(context, DELETE_MEDIA_ONLY, value);
+  }
+
+  public static String whoCanAddYouToGroups(Context context) {
+    return getStringPreference(context, WHO_CAN_ADD_YOU_TO_GROUPS, "nonblocked");
+  }
+
+  public static void setWhoCanAddYouToGroups(Context context, String value) {
+    setStringPreference(context, WHO_CAN_ADD_YOU_TO_GROUPS, value);
+  }
+  // End added methods block
+  //---------------------------------------------------------------------------
 }
