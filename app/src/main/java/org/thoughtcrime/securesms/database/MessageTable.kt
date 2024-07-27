@@ -230,10 +230,10 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
         $MMS_MESSAGE_SIZE INTEGER,
         $MMS_STATUS INTEGER,
         $MMS_TRANSACTION_ID TEXT,
-        $SMS_SUBSCRIPTION_ID INTEGER DEFAULT -1, 
-        $RECEIPT_TIMESTAMP INTEGER DEFAULT -1, 
-        $HAS_DELIVERY_RECEIPT INTEGER DEFAULT 0, 
-        $HAS_READ_RECEIPT INTEGER DEFAULT 0, 
+        $SMS_SUBSCRIPTION_ID INTEGER DEFAULT -1,
+        $RECEIPT_TIMESTAMP INTEGER DEFAULT -1,
+        $HAS_DELIVERY_RECEIPT INTEGER DEFAULT 0,
+        $HAS_READ_RECEIPT INTEGER DEFAULT 0,
         $VIEWED_COLUMN INTEGER DEFAULT 0,
         $MISMATCHED_IDENTITIES TEXT DEFAULT NULL,
         $NETWORK_FAILURES TEXT DEFAULT NULL,
@@ -356,15 +356,15 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
       """
         json_group_array(
           json_object(
-            '${AttachmentTable.ID}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.ID}, 
+            '${AttachmentTable.ID}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.ID},
             '${AttachmentTable.MESSAGE_ID}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.MESSAGE_ID},
-            '${AttachmentTable.DATA_SIZE}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.DATA_SIZE}, 
-            '${AttachmentTable.FILE_NAME}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.FILE_NAME}, 
+            '${AttachmentTable.DATA_SIZE}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.DATA_SIZE},
+            '${AttachmentTable.FILE_NAME}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.FILE_NAME},
             '${AttachmentTable.DATA_FILE}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.DATA_FILE},
             '${AttachmentTable.THUMBNAIL_FILE}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.THUMBNAIL_FILE},
-            '${AttachmentTable.CONTENT_TYPE}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.CONTENT_TYPE}, 
-            '${AttachmentTable.CDN_NUMBER}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.CDN_NUMBER}, 
-            '${AttachmentTable.REMOTE_LOCATION}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.REMOTE_LOCATION}, 
+            '${AttachmentTable.CONTENT_TYPE}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.CONTENT_TYPE},
+            '${AttachmentTable.CDN_NUMBER}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.CDN_NUMBER},
+            '${AttachmentTable.REMOTE_LOCATION}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.REMOTE_LOCATION},
             '${AttachmentTable.FAST_PREFLIGHT_ID}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.FAST_PREFLIGHT_ID},
             '${AttachmentTable.VOICE_NOTE}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.VOICE_NOTE},
             '${AttachmentTable.BORDERLESS}', ${AttachmentTable.TABLE_NAME}.${AttachmentTable.BORDERLESS},
@@ -399,16 +399,16 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
 
     private val SNIPPET_QUERY =
       """
-        SELECT 
+        SELECT
           $ID,
           $TYPE,
           $DATE_RECEIVED
-        FROM 
+        FROM
           $TABLE_NAME INDEXED BY $INDEX_THREAD_STORY_SCHEDULED_DATE_LATEST_REVISION_ID
-        WHERE 
-          $THREAD_ID = ? AND 
-          $TYPE & ${MessageTypes.GROUP_V2_LEAVE_BITS} != ${MessageTypes.GROUP_V2_LEAVE_BITS} AND 
-          $STORY_TYPE = 0 AND 
+        WHERE
+          $THREAD_ID = ? AND
+          $TYPE & ${MessageTypes.GROUP_V2_LEAVE_BITS} != ${MessageTypes.GROUP_V2_LEAVE_BITS} AND
+          $STORY_TYPE = 0 AND
           $PARENT_STORY_ID <= 0 AND
           $SCHEDULED_DATE = -1 AND
           $LATEST_REVISION_ID IS NULL AND
@@ -417,7 +417,7 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
           $TYPE & ${MessageTypes.SPECIAL_TYPES_MASK} != ${MessageTypes.SPECIAL_TYPE_REPORTED_SPAM} AND
           $TYPE & ${MessageTypes.SPECIAL_TYPES_MASK} != ${MessageTypes.SPECIAL_TYPE_MESSAGE_REQUEST_ACCEPTED} AND
           $TYPE NOT IN (
-            ${MessageTypes.PROFILE_CHANGE_TYPE}, 
+            ${MessageTypes.PROFILE_CHANGE_TYPE},
             ${MessageTypes.GV1_MIGRATION_TYPE},
             ${MessageTypes.CHANGE_NUMBER_TYPE},
             ${MessageTypes.RELEASE_CHANNEL_DONATION_REQUEST_TYPE},
@@ -472,10 +472,10 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
      * Changes should be reflected in [MmsMessageRecord.canDeleteSync].
      */
     private const val IS_ADDRESSABLE_CLAUSE = """
-      (($TYPE & ${MessageTypes.BASE_TYPE_MASK}) = ${MessageTypes.BASE_SENT_TYPE} OR ($TYPE & ${MessageTypes.BASE_TYPE_MASK}) = ${MessageTypes.BASE_INBOX_TYPE}) AND 
-      ($TYPE & (${MessageTypes.SECURE_MESSAGE_BIT} | ${MessageTypes.PUSH_MESSAGE_BIT})) != 0 AND 
-      ($TYPE & ${MessageTypes.GROUP_MASK}) = 0 AND 
-      ($TYPE & ${MessageTypes.KEY_EXCHANGE_MASK}) = 0 AND 
+      (($TYPE & ${MessageTypes.BASE_TYPE_MASK}) = ${MessageTypes.BASE_SENT_TYPE} OR ($TYPE & ${MessageTypes.BASE_TYPE_MASK}) = ${MessageTypes.BASE_INBOX_TYPE}) AND
+      ($TYPE & (${MessageTypes.SECURE_MESSAGE_BIT} | ${MessageTypes.PUSH_MESSAGE_BIT})) != 0 AND
+      ($TYPE & ${MessageTypes.GROUP_MASK}) = 0 AND
+      ($TYPE & ${MessageTypes.KEY_EXCHANGE_MASK}) = 0 AND
       ($TYPE & ${MessageTypes.ENCRYPTION_MASK}) = 0 AND
       ($TYPE & ${MessageTypes.SPECIAL_TYPES_MASK}) != ${MessageTypes.SPECIAL_TYPE_REPORTED_SPAM} AND
       ($TYPE & ${MessageTypes.SPECIAL_TYPES_MASK}) != ${MessageTypes.SPECIAL_TYPE_MESSAGE_REQUEST_ACCEPTED} AND
@@ -677,8 +677,8 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
     writableDatabase.withinTransaction { db ->
       db.execSQL(
         """
-          UPDATE $TABLE_NAME 
-          SET $TYPE = ($TYPE & ${MessageTypes.TOTAL_MASK - maskOff} | $maskOn ) 
+          UPDATE $TABLE_NAME
+          SET $TYPE = ($TYPE & ${MessageTypes.TOTAL_MASK - maskOff} | $maskOn )
           WHERE $ID = ?
         """,
         buildArgs(id)
@@ -698,7 +698,7 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
         UPDATE $TABLE_NAME
         SET
           $BODY = ?,
-          $TYPE = ($TYPE & ${MessageTypes.TOTAL_MASK - maskOff} | $maskOn) 
+          $TYPE = ($TYPE & ${MessageTypes.TOTAL_MASK - maskOff} | $maskOn)
         WHERE $ID = ?
       """,
       arrayOf(body, messageId.toString() + "")
@@ -1499,12 +1499,12 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
   fun getUnreadStoryThreadRecipientIds(): List<RecipientId> {
     val query = """
       SELECT DISTINCT ${ThreadTable.TABLE_NAME}.${ThreadTable.RECIPIENT_ID}
-      FROM $TABLE_NAME 
+      FROM $TABLE_NAME
         JOIN ${ThreadTable.TABLE_NAME} ON $TABLE_NAME.$THREAD_ID = ${ThreadTable.TABLE_NAME}.${ThreadTable.ID}
-      WHERE 
-        $IS_STORY_CLAUSE AND 
-        ($outgoingTypeClause) = 0 AND 
-        $VIEWED_COLUMN = 0 AND 
+      WHERE
+        $IS_STORY_CLAUSE AND
+        ($outgoingTypeClause) = 0 AND
+        $VIEWED_COLUMN = 0 AND
         $TABLE_NAME.$READ = 0
       """
 
@@ -1529,10 +1529,10 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
         $TABLE_NAME.$DATE_SENT,
         $RECEIPT_TIMESTAMP,
         ($outgoingTypeClause) = 0 AND $VIEWED_COLUMN = 0 AS is_unread
-        FROM $TABLE_NAME 
+        FROM $TABLE_NAME
           JOIN ${ThreadTable.TABLE_NAME} ON $TABLE_NAME.$THREAD_ID = ${ThreadTable.TABLE_NAME}.${ThreadTable.ID}
         WHERE
-          $STORY_TYPE > 0 AND 
+          $STORY_TYPE > 0 AND
           $REMOTE_DELETED = 0
           ${if (isOutgoingOnly) " AND is_outgoing != 0" else ""}
         ORDER BY
@@ -1617,26 +1617,26 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
       val sharedArgs = buildArgs(timestamp, releaseChannelThreadId)
 
       val deleteStoryRepliesQuery = """
-        DELETE FROM $TABLE_NAME 
-        WHERE 
-          $PARENT_STORY_ID > 0 AND 
+        DELETE FROM $TABLE_NAME
+        WHERE
+          $PARENT_STORY_ID > 0 AND
           $PARENT_STORY_ID IN (
-            SELECT $ID 
-            FROM $TABLE_NAME 
+            SELECT $ID
+            FROM $TABLE_NAME
             WHERE $storiesBeforeTimestampWhere
           )
         """
 
       val disassociateQuoteQuery = """
-        UPDATE $TABLE_NAME 
-        SET 
-          $QUOTE_MISSING = 1, 
-          $QUOTE_BODY = '' 
-        WHERE 
-          $PARENT_STORY_ID < 0 AND 
+        UPDATE $TABLE_NAME
+        SET
+          $QUOTE_MISSING = 1,
+          $QUOTE_BODY = ''
+        WHERE
+          $PARENT_STORY_ID < 0 AND
           ABS($PARENT_STORY_ID) IN (
-            SELECT $ID 
-            FROM $TABLE_NAME 
+            SELECT $ID
+            FROM $TABLE_NAME
             WHERE $storiesBeforeTimestampWhere
           )
         """
@@ -1681,26 +1681,26 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
       val sharedArgs = buildArgs(threadId)
 
       val deleteStoryRepliesQuery = """
-        DELETE FROM $TABLE_NAME 
-        WHERE 
-          $PARENT_STORY_ID > 0 AND 
+        DELETE FROM $TABLE_NAME
+        WHERE
+          $PARENT_STORY_ID > 0 AND
           $PARENT_STORY_ID IN (
-            SELECT $ID 
-            FROM $TABLE_NAME 
+            SELECT $ID
+            FROM $TABLE_NAME
             WHERE $storesInRecipientThread
           )
         """
 
       val disassociateQuoteQuery = """
-        UPDATE $TABLE_NAME 
-        SET 
-          $QUOTE_MISSING = 1, 
-          $QUOTE_BODY = '' 
-        WHERE 
-          $PARENT_STORY_ID < 0 AND 
+        UPDATE $TABLE_NAME
+        SET
+          $QUOTE_MISSING = 1,
+          $QUOTE_BODY = ''
+        WHERE
+          $PARENT_STORY_ID < 0 AND
           ABS($PARENT_STORY_ID) IN (
-            SELECT $ID 
-            FROM $TABLE_NAME 
+            SELECT $ID
+            FROM $TABLE_NAME
             WHERE $storesInRecipientThread
           )
         """
@@ -1923,13 +1923,13 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
   private fun rawQueryWithAttachments(where: String, arguments: Array<String>?, reverse: Boolean = false, limit: Long = 0): Cursor {
     val database = databaseHelper.signalReadableDatabase
     var rawQueryString = """
-      SELECT 
+      SELECT
         ${Util.join(MMS_PROJECTION_WITH_ATTACHMENTS, ",")}
-      FROM 
-        $TABLE_NAME LEFT OUTER JOIN ${AttachmentTable.TABLE_NAME} ON ($TABLE_NAME.$ID = ${AttachmentTable.TABLE_NAME}.${AttachmentTable.MESSAGE_ID}) 
-      WHERE 
-        $where 
-      GROUP BY 
+      FROM
+        $TABLE_NAME LEFT OUTER JOIN ${AttachmentTable.TABLE_NAME} ON ($TABLE_NAME.$ID = ${AttachmentTable.TABLE_NAME}.${AttachmentTable.MESSAGE_ID})
+      WHERE
+        $where
+      GROUP BY
         $TABLE_NAME.$ID
     """.toSingleLine()
 
@@ -2002,8 +2002,8 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
     writableDatabase.withinTransaction { db ->
       db.execSQL(
         """
-          UPDATE $TABLE_NAME 
-          SET $TYPE = ($TYPE & ${MessageTypes.TOTAL_MASK - maskOff} | $maskOn ) 
+          UPDATE $TABLE_NAME
+          SET $TYPE = ($TYPE & ${MessageTypes.TOTAL_MASK - maskOff} | $maskOn )
           WHERE $ID = ?
         """,
         buildArgs(id)
@@ -2212,11 +2212,11 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
       (
         $ORIGINAL_MESSAGE_ID = ? OR
         $ID = ?
-      ) AND 
+      ) AND
       (
-        $READ = 0 OR 
+        $READ = 0 OR
         (
-          $REACTIONS_UNREAD = 1 AND 
+          $REACTIONS_UNREAD = 1 AND
           ($outgoingTypeClause)
         )
       )
@@ -2229,14 +2229,14 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
 
   fun setMessagesReadSince(threadId: Long, sinceTimestamp: Long): List<MarkedMessageInfo> {
     var query = """
-      $THREAD_ID = ? AND 
-      $STORY_TYPE = 0 AND 
-      $PARENT_STORY_ID <= 0 AND 
+      $THREAD_ID = ? AND
+      $STORY_TYPE = 0 AND
+      $PARENT_STORY_ID <= 0 AND
       $LATEST_REVISION_ID IS NULL AND
       (
-        $READ = 0 OR 
+        $READ = 0 OR
         (
-          $REACTIONS_UNREAD = 1 AND 
+          $REACTIONS_UNREAD = 1 AND
           ($outgoingTypeClause)
         )
       )
@@ -2254,13 +2254,13 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
 
   fun setGroupStoryMessagesReadSince(threadId: Long, groupStoryId: Long, sinceTimestamp: Long): List<MarkedMessageInfo> {
     var query = """
-      $THREAD_ID = ? AND 
-      $STORY_TYPE = 0 AND 
-      $PARENT_STORY_ID = ? AND 
+      $THREAD_ID = ? AND
+      $STORY_TYPE = 0 AND
+      $PARENT_STORY_ID = ? AND
       (
-        $READ = 0 OR 
+        $READ = 0 OR
         (
-          $REACTIONS_UNREAD = 1 AND 
+          $REACTIONS_UNREAD = 1 AND
           ($outgoingTypeClause)
         )
       )
@@ -2674,7 +2674,7 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
     if (editedMessage != null) {
       if (retrieved.quote != null && editedMessage.quote != null) {
         writableDatabase.execSQL(
-          """  
+          """
           WITH o as (SELECT $QUOTE_ID, $QUOTE_AUTHOR, $QUOTE_BODY, $QUOTE_TYPE, $QUOTE_MISSING, $QUOTE_BODY_RANGES FROM $TABLE_NAME WHERE $ID = ${editedMessage.id})
           UPDATE $TABLE_NAME
           SET $QUOTE_ID = old.$QUOTE_ID, $QUOTE_AUTHOR = old.$QUOTE_AUTHOR, $QUOTE_BODY = old.$QUOTE_BODY, $QUOTE_TYPE = old.$QUOTE_TYPE, $QUOTE_MISSING = old.$QUOTE_MISSING, $QUOTE_BODY_RANGES = old.$QUOTE_BODY_RANGES
@@ -3553,14 +3553,14 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
 
   fun getNearestExpiringViewOnceMessage(): ViewOnceExpirationInfo? {
     val query = """
-      SELECT 
-        $TABLE_NAME.$ID, 
-        $VIEW_ONCE, 
-        $DATE_RECEIVED 
-      FROM 
-        $TABLE_NAME INNER JOIN ${AttachmentTable.TABLE_NAME} ON $TABLE_NAME.$ID = ${AttachmentTable.TABLE_NAME}.${AttachmentTable.MESSAGE_ID} 
-      WHERE 
-        $VIEW_ONCE > 0 AND 
+      SELECT
+        $TABLE_NAME.$ID,
+        $VIEW_ONCE,
+        $DATE_RECEIVED
+      FROM
+        $TABLE_NAME INNER JOIN ${AttachmentTable.TABLE_NAME} ON $TABLE_NAME.$ID = ${AttachmentTable.TABLE_NAME}.${AttachmentTable.MESSAGE_ID}
+      WHERE
+        $VIEW_ONCE > 0 AND
         (${AttachmentTable.DATA_FILE} NOT NULL OR ${AttachmentTable.TRANSFER_STATE} != ?)
       """
 
@@ -4418,12 +4418,12 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
         $DATE_SENT = $targetTimestamp AND
         $FROM_RECIPIENT_ID = ? AND
         (
-          $TO_RECIPIENT_ID = ? OR 
+          $TO_RECIPIENT_ID = ? OR
           EXISTS (
-            SELECT 1 
-            FROM ${RecipientTable.TABLE_NAME} 
-            WHERE 
-              ${RecipientTable.TABLE_NAME}.${RecipientTable.ID} = $TO_RECIPIENT_ID AND 
+            SELECT 1
+            FROM ${RecipientTable.TABLE_NAME}
+            WHERE
+              ${RecipientTable.TABLE_NAME}.${RecipientTable.ID} = $TO_RECIPIENT_ID AND
               ${RecipientTable.TABLE_NAME}.${RecipientTable.TYPE} != ${RecipientTable.RecipientType.INDIVIDUAL.id}
           )
         )
@@ -4462,7 +4462,7 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
         UPDATE $TABLE_NAME
         SET
           ${receiptType.columnName} = 1,
-          $RECEIPT_TIMESTAMP = MAX($RECEIPT_TIMESTAMP, $receiptSentTimestamp) 
+          $RECEIPT_TIMESTAMP = MAX($RECEIPT_TIMESTAMP, $receiptSentTimestamp)
         WHERE
           $ID = ${receiptData.messageId}
         """
@@ -4698,14 +4698,14 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
       .from(TABLE_NAME)
       .where(
         """
-        $NOTIFIED = 0 
-        AND $STORY_TYPE = 0 
-        AND $LATEST_REVISION_ID IS NULL 
+        $NOTIFIED = 0
+        AND $STORY_TYPE = 0
+        AND $LATEST_REVISION_ID IS NULL
         AND (
-          $READ = 0 
-          OR $REACTIONS_UNREAD = 1 
+          $READ = 0
+          OR $REACTIONS_UNREAD = 1
           ${if (stickyQuery.isNotEmpty()) "OR ($stickyQuery)" else ""}
-          OR ($IS_MISSED_CALL_TYPE_CLAUSE AND EXISTS (SELECT 1 FROM ${CallTable.TABLE_NAME} WHERE ${CallTable.MESSAGE_ID} = $TABLE_NAME.$ID AND ${CallTable.EVENT} = ${CallTable.Event.serialize(CallTable.Event.MISSED)} AND ${CallTable.READ} = 0)) 
+          OR ($IS_MISSED_CALL_TYPE_CLAUSE AND EXISTS (SELECT 1 FROM ${CallTable.TABLE_NAME} WHERE ${CallTable.MESSAGE_ID} = $TABLE_NAME.$ID AND ${CallTable.EVENT} = ${CallTable.Event.serialize(CallTable.Event.MISSED)} AND ${CallTable.READ} = 0))
         )
         """.trimIndent()
       )
@@ -5432,4 +5432,16 @@ open class MessageTable(context: Context?, databaseHelper: SignalDatabase) : Dat
       }
     }
   }
+
+  //---------------------------------------------------------------------------
+  // JW: Deletes only the attachment for the message, not the message itself.
+  fun deleteAttachmentsOnly(messageId: Long): Boolean {
+    val threadId = getThreadIdForMessage(messageId)
+    val attachmentTable = SignalDatabase.attachments
+    attachmentTable.deleteAttachmentsForMessage(messageId)
+    notifyConversationListeners(threadId)
+    OptimizeMessageSearchIndexJob.enqueue()
+    return true
+  }
+  //---------------------------------------------------------------------------
 }
