@@ -8,4 +8,10 @@ data class ChatsSettingsState(
   val enterKeySends: Boolean,
   val localBackupsEnabled: Boolean,
   val canAccessRemoteBackupsSettings: Boolean
+  // JW: added extra preferences
+  ,
+  val keepViewOnceMessages: Boolean,
+  val ignoreRemoteDelete: Boolean,
+  val deleteMediaOnly: Boolean,
+  val whoCanAddYouToGroups: String
 )
